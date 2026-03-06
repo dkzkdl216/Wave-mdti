@@ -1,364 +1,219 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-
 <meta charset="UTF-8">
-
-<title>Surf Personality Test</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;500;700&display=swap" rel="stylesheet">
+<title>Surf Style Test</title>
 
 <style>
 
 body{
-
-font-family:'Pretendard',sans-serif;
-margin:0;
-height:100vh;
-
-background:
-radial-gradient(circle at 10% 20%, rgba(255,255,255,0.2) 0%, transparent 20%),
-radial-gradient(circle at 80% 60%, rgba(255,255,255,0.2) 0%, transparent 25%),
-linear-gradient(135deg,#008cff,#47e3c2);
-
+font-family: Pretendard, sans-serif;
+background: linear-gradient(180deg,#6ec7ff,#bfe9ff);
 display:flex;
-align-items:center;
 justify-content:center;
-
+align-items:center;
+height:100vh;
+margin:0;
 }
 
-.card{
-
+.container{
 background:white;
-width:420px;
 padding:40px;
 border-radius:20px;
-box-shadow:0 20px 50px rgba(0,0,0,0.2);
 text-align:center;
-
-}
-
-h1{
-margin-bottom:10px;
+width:400px;
+box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 
 button{
-
-background:#008cff;
-color:white;
+padding:12px 20px;
+margin:10px;
 border:none;
-padding:14px 26px;
-border-radius:12px;
+border-radius:10px;
+background:#2f80ed;
+color:white;
 font-size:16px;
 cursor:pointer;
-
 }
 
-.answer{
-
-background:#f1f6ff;
-margin:12px 0;
-padding:14px;
-border-radius:10px;
-cursor:pointer;
-
-}
-
-.answer:hover{
-
-background:#dfe9ff;
-
+button:hover{
+background:#1366d6;
 }
 
 img{
-
 width:200px;
-border-radius:12px;
-margin:15px 0;
-
-}
-
-.progress{
-
-color:#888;
-font-size:14px;
-margin-bottom:10px;
-
-}
-
-.bar{
-
-height:8px;
-background:#eee;
-border-radius:10px;
 margin-top:20px;
-
-}
-
-.fill{
-
-height:8px;
-background:#008cff;
-border-radius:10px;
-
-}
-
-.apply{
-
-background:#ff7f50;
-margin-top:20px;
-
 }
 
 </style>
-
 </head>
 
 <body>
 
-<div class="card">
+<div class="container" id="app">
 
-<div id="start">
+<h1>🌊 Surf Style Test</h1>
+<p>언어를 선택하세요 / Choose Language</p>
 
-<h1>🏄 나는 어떤 서퍼일까?</h1>
-
-<p>파도를 대하는 나의 스타일 테스트</p>
-
-<button onclick="start()">테스트 시작</button>
-
-</div>
-
-<div id="quiz" style="display:none">
-
-<div class="progress" id="progress"></div>
-
-<h2 id="question"></h2>
-
-<div id="answers"></div>
-
-<div class="bar">
-<div class="fill" id="fill"></div>
-</div>
-
-</div>
-
-<div id="result" style="display:none">
-
-<h2 id="title"></h2>
-
-<img id="image">
-
-<p id="desc"></p>
-
-<button class="apply" onclick="apply()">동아리 신청하기</button>
-
-</div>
+<button onclick="startTest('ko')">한국어</button>
+<button onclick="startTest('en')">English</button>
 
 </div>
 
 <script>
 
-let current=0
+let lang="ko"
+let q=0
+let scoreA=0
+let scoreB=0
 
-let score={wave:0,free:0,vibe:0,soul:0}
+const data={
 
-const questions=[
+ko:{
+questions:[
+"여행 가면 계획부터 세운다",
+"새로운 스포츠 보면 바로 도전한다",
+"사람 많은 곳이 좋다",
+"바다를 보면 바로 들어가고 싶다",
+"친구들과 노는 게 좋다",
+"혼자 여행도 좋아한다",
+"도전적인 활동이 좋다",
+"사진 찍는 걸 좋아한다"
+],
 
-{
-q:"여행 스타일은?",
-a:[
-{text:"계획적으로",type:"wave"},
-{text:"즉흥 여행",type:"free"},
-{text:"친구와 여행",type:"vibe"},
-{text:"풍경 감상",type:"soul"}
-]
-},
-
-{
-q:"동아리 활동에서 나는?",
-a:[
-{text:"실력 성장",type:"wave"},
-{text:"새 경험",type:"free"},
-{text:"사람들과 친해짐",type:"vibe"},
-{text:"힐링",type:"soul"}
-]
-},
-
-{
-q:"바다를 보면?",
-a:[
-{text:"파도 분석",type:"wave"},
-{text:"일단 들어감",type:"free"},
-{text:"친구 부름",type:"vibe"},
-{text:"노을 감상",type:"soul"}
-]
-},
-
-{
-q:"내 성격은?",
-a:[
-{text:"목표지향",type:"wave"},
-{text:"도전적",type:"free"},
-{text:"사교적",type:"vibe"},
-{text:"감성적",type:"soul"}
-]
-},
-
-{
-q:"휴일에 나는?",
-a:[
-{text:"운동",type:"wave"},
-{text:"새 활동",type:"free"},
-{text:"친구 만나기",type:"vibe"},
-{text:"산책",type:"soul"}
-]
-},
-
-{
-q:"바다에서 가장 좋은 순간?",
-a:[
-{text:"파도 성공",type:"wave"},
-{text:"새 기술 도전",type:"free"},
-{text:"같이 웃기",type:"vibe"},
-{text:"노을 보기",type:"soul"}
-]
-},
-
-{
-q:"좋아하는 분위기?",
-a:[
-{text:"열정",type:"wave"},
-{text:"자유",type:"free"},
-{text:"활기",type:"vibe"},
-{text:"평온",type:"soul"}
-]
-},
-
-{
-q:"서핑을 한다면?",
-a:[
-{text:"기술 성장",type:"wave"},
-{text:"도전",type:"free"},
-{text:"사람들과",type:"vibe"},
-{text:"자연 감상",type:"soul"}
-]
-},
-
-{
-q:"친구들이 말하는 나는?",
-a:[
-{text:"열심형",type:"wave"},
-{text:"모험가",type:"free"},
-{text:"분위기메이커",type:"vibe"},
-{text:"감성러",type:"soul"}
-]
-},
-
-{
-q:"바다에 가는 이유는?",
-a:[
-{text:"운동",type:"wave"},
-{text:"모험",type:"free"},
-{text:"친구",type:"vibe"},
-{text:"힐링",type:"soul"}
-]
-}
-
-]
-
-const results={
-
+results:{
 wave:{
-title:"🌊 Wave Rider",
-img:"wave.jpg",
-desc:"파도를 읽는 능력이 뛰어난 전략형 서퍼. 목표가 생기면 끝까지 도전하며 성장하는 스타일이다. 동아리에서 실력 향상을 이끄는 핵심 인물."
+title:"🌊 파도 헌터",
+desc:"도전과 스릴을 즐기는 타입. 서핑 실력 향상을 위해 끊임없이 파도를 찾는다.",
+img:"wave.png"
 },
 
 free:{
-title:"🏄 Freedom Surfer",
-img:"freedom.jpg",
-desc:"자유로운 모험가 타입. 새로운 경험과 도전을 즐기며 바다와 함께하는 순간을 사랑한다."
+title:"🏄 자유 서퍼",
+desc:"계획보다 자유. 새로운 해변과 파도를 탐험하는 여행자 스타일.",
+img:"free.png"
 },
 
 vibe:{
-title:"🎉 Beach Vibe Maker",
-img:"vibe.jpg",
-desc:"사람들과 함께 있을 때 가장 빛나는 타입. 동아리 분위기를 즐겁게 만드는 핵심 인싸."
+title:"🌴 비치 바이브 메이커",
+desc:"사람들과 함께하는 해변 라이프를 즐기는 분위기 메이커.",
+img:"vibe.png"
+},
+
+soul:{
+title:"🌅 오션 소울",
+desc:"바다 자체를 사랑하는 감성형. 서핑은 명상 같은 시간.",
+img:"soul.png"
+}
+}
+},
+
+en:{
+questions:[
+"I like planning before traveling",
+"I try new sports quickly",
+"I enjoy crowded places",
+"The ocean makes me want to jump in",
+"I enjoy hanging with friends",
+"I like traveling alone",
+"I like challenging activities",
+"I enjoy taking photos"
+],
+
+results:{
+wave:{
+title:"🌊 Wave Hunter",
+desc:"Thrill seeker who constantly looks for bigger waves.",
+img:"wave.png"
+},
+
+free:{
+title:"🏄 Free Surfer",
+desc:"Freedom first. Loves exploring new beaches and waves.",
+img:"free.png"
+},
+
+vibe:{
+title:"🌴 Beach Vibe Maker",
+desc:"Social energy of the beach. Brings the fun everywhere.",
+img:"vibe.png"
 },
 
 soul:{
 title:"🌅 Ocean Soul",
-img:"soul.jpg",
-desc:"바다의 감성과 분위기를 사랑하는 힐링형 서퍼. 자연 속에서 가장 편안함을 느끼는 타입."
+desc:"Feels deeply connected to the ocean. Surfing is meditation.",
+img:"soul.png"
 }
-
 }
-
-function start(){
-
-document.getElementById("start").style.display="none"
-document.getElementById("quiz").style.display="block"
-
-show()
-
-}
-
-function show(){
-
-let q=questions[current]
-
-document.getElementById("progress").innerText=(current+1)+" / "+questions.length
-
-document.getElementById("fill").style.width=((current/questions.length)*100)+"%"
-
-document.getElementById("question").innerText=q.q
-
-let html=""
-
-q.a.forEach(a=>{
-
-html+=`<div class="answer" onclick="select('${a.type}')">${a.text}</div>`
-
-})
-
-document.getElementById("answers").innerHTML=html
-
-}
-
-function select(type){
-
-score[type]++
-
-current++
-
-if(current<questions.length){
-
-show()
-
-}else{
-
-result()
 
 }
 
 }
 
-function result(){
+function startTest(l){
 
-document.getElementById("quiz").style.display="none"
-document.getElementById("result").style.display="block"
-
-let max=Object.keys(score).reduce((a,b)=>score[a]>score[b]?a:b)
-
-document.getElementById("title").innerText=results[max].title
-document.getElementById("desc").innerText=results[max].desc
-document.getElementById("image").src=results[max].img
+lang=l
+showQuestion()
 
 }
 
-function apply(){
+function showQuestion(){
 
-window.open("https://docs.google.com/forms/d/e/1FAIpQLSdUfT1mArajdegkuPpvFVDfW-E7uEoijNLzhviAQCk5fOchiw/viewform")
+const question=data[lang].questions[q]
+
+document.getElementById("app").innerHTML=`
+
+<h2>${question}</h2>
+
+<button onclick="answer('A')">👍</button>
+<button onclick="answer('B')">👎</button>
+
+<p>${q+1}/8</p>
+
+`
+
+}
+
+function answer(type){
+
+if(type==="A")scoreA++
+else scoreB++
+
+q++
+
+if(q<8) showQuestion()
+else showResult()
+
+}
+
+function showResult(){
+
+let result
+
+if(scoreA>=6) result="wave"
+else if(scoreA>=4) result="free"
+else if(scoreA>=2) result="vibe"
+else result="soul"
+
+const r=data[lang].results[result]
+
+document.getElementById("app").innerHTML=`
+
+<h2>${r.title}</h2>
+
+<img src="${r.img}">
+
+<p>${r.desc}</p>
+
+<br>
+
+<a href="https://docs.google.com/forms/d/e/1FAIpQLSdUfT1mArajdegkuPpvFVDfW-E7uEoijNLzhviAQCk5fOchiw/viewform">
+
+<button>동아리 신청하기</button>
+
+</a>
+
+`
 
 }
 
